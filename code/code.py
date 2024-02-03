@@ -16,7 +16,7 @@ tasks_init = [
 
 task_collection.insert_many(tasks_init)
 
-app = Flask(__name__)
+app = Flask('code.py')
 app.secret_key = "super secret key"
 
 
