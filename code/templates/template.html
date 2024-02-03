@@ -12,7 +12,7 @@
         <div class="container-fluid">
             <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
                 <ul class="navbar-nav me-auto">
-                    {% if user_is_authenticated %}
+                    {% if session.user_is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href="index">Tasks</a>
                         </li>
@@ -29,21 +29,21 @@
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav ms-auto">
-                    {% if not user_is_authenticated %}
+                    {% if not session.user_is_authenticated %}
                         <li class="nav-item">
-                            <form class="d-flex" action="login" method="POST">
+                            <form class="d-flex" action="/login" method="POST">
                                 <label for="username" class="text-white me-2">Username:</label>
-                                <input type="text" id="username" class="form-control me-2" placeholder="Enter username">
+                                <input type="text" id="username" name="username" class="form-control me-2" placeholder="Enter username">
 
                                 <label for="password" class="text-white me-2">Password:</label>
-                                <input type="password" id="password" class="form-control me-2" placeholder="Enter password">
+                                <input type="password" id="password" name="password" class="form-control me-2" placeholder="Enter password">
 
                                 <button class="btn btn-outline-light" type="submit">Login</button>
                             </form>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <form class="d-flex" action="logout" method="POST">
+                            <form class="d-flex" action="/logout" method="POST">
                                 <button class="btn btn-outline-light" type="submit">Logout</button>
                             </form>
                         </li>
@@ -52,7 +52,16 @@
             </div>
         </div>
     </nav>
-    <main class="p-5 text-center bg-light">
+    <main class="p-5 text-center bg-light text-dark">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
         {% block content %}{% endblock %}
     </main>
     <footer class="text-center text-lg-start bg-light text-muted">

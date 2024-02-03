@@ -3,9 +3,10 @@
 {% block content %}
 <h2>Tasks</h2>
 <ul class="list-group">
+<p>Task - Requestor - Assignee - Status - Due Date</p>
 {% for task in tasklist %}
 <li class="list-group-item">
-    {{ tasks["task"] }} - ({{ tasks["requestor"] }}) - {{ tasks["assignee"] }} - {{ tasks["status"] }} - {{ tasks["due_date"] }}
+    {{ task["task"] }} - {{ task["requestor"] }} - {{ task["assignee"] }} - {{ task["status"] }} - {{ task["due_date"] }}
 </li>
 {% endfor %}
 </ul>
