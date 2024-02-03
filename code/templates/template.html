@@ -55,12 +55,22 @@
             </div>
         </div>
     </nav>
-    <main class="p-5 text-center bg-light text-dark">
+    <main class="p-5 text-center bg-light text-dark">    <!--
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for category, message in messages %}
+                    <p class="{{ category }}" >{{ message }}</p>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        -->
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul class=flashes>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
+                {% for  message in messages %}
+                    <p class="alert alert-info" >{{ message }}</p>
                 {% endfor %}
                 </ul>
             {% endif %}
@@ -68,7 +78,7 @@
         {% block content %}{% endblock %}
     </main>
     <footer class="text-center text-lg-start bg-light text-muted">
-                <p class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom"></p>
+        <p class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom"></p>
     </footer>
 </body>
 </html>

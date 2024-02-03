@@ -43,7 +43,6 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-
         user = users_collection.find_one({'username': username})
         if user and user['password'] == password:
             session['user_is_authenticated'] = True
@@ -51,19 +50,18 @@ def login():
             flash('Login successful!', 'success')
         else:
             flash('Login failed. Please check your credentials.', 'error')
-    return redirect('index')
+    return redirect(url_for('index'))
 
 
 @app.route('/logout', methods=['POST'])
 def logout():
     session.clear()
-    flash('Successfuly logged out.', 'Logout successful!')
-    return redirect('index')
+    flash('Successfuly logged out.', 'success')
+    return redirect(url_for('index'))
 
 
 @app.route('/form', methods=['GET', 'POST'])
 def form():
-
     assignee_list = users_collection.distinct('username')
     status_list = [
         'New'
@@ -73,7 +71,6 @@ def form():
         , 'Awaiting Additional Info'
         , 'Long Term Project'
     ]
-
     if request.method == 'POST':
         task = request.form.get('task')
         requestor = request.form.get('requestor')
@@ -83,7 +80,6 @@ def form():
 
         highestid = task_collection.find_one(sort=[('id', pymongo.DESCENDING)])
         newid = int(highestid['id']) + 1 if highestid else 1
-
         result = task_collection.insert_one({
             'id': str(newid)
             , 'task': task
@@ -95,7 +91,7 @@ def form():
         if result.acknowledged:
             flash('Ticket submitted succesfully.', 'success')
         else:
-            flash('Failed to submit', 'error')
+            flash('Failed to submit.', 'error')
     return render_template('form.html', assignees=assignee_list, statuses=status_list)
 
 
@@ -105,11 +101,9 @@ def edit_ticket():
         ticket_id = request.args.get('id')
         ticket = task_collection.find_one({'id': ticket_id})
         return render_template('tasks.html', ticket=ticket)
-
     elif request.method == 'POST':
         ticket_id = request.form.get('id')
         existing_ticket = task_collection.find_one({'id': ticket_id})
-
         if existing_ticket:
             updated_fields = {
                 'task': request.form.get('task'),
@@ -121,7 +115,6 @@ def edit_ticket():
             task_collection.update_one({'id': ticket_id}, {'$set': updated_fields})
             flash('Ticket updated successfully.', 'success')
             return redirect(url_for('manage'))
-
         else:
             flash('Ticket not found!', 'error')
             return redirect(url_for('manage'))
@@ -132,6 +125,7 @@ def delete_ticket():
     ticket_id = request.args.get('id')
     deletion = task_collection.delete_one({'id': ticket_id})
     if deletion.deleted_count > 0:
+        session['ticket_listed'] = False
         flash('Ticket deleted succesfully.', 'success')
     else:
         flash('Ticket was not deleted.', 'error')
@@ -143,11 +137,9 @@ def manage():
     if request.method == 'GET':
         id_list = task_collection.distinct('id')
         return render_template('manage.html', ids=id_list)
-
     elif request.method == 'POST':
         ticket_id = request.form.get('id')
         ticket = task_collection.find_one({'id': ticket_id})
-
         if ticket:
             session['ticket_listed'] = True
             session['ticket'] = str(ticket)
@@ -157,7 +149,6 @@ def manage():
             session['ticket_assignee'] = ticket['assignee']
             session['ticket_status'] = ticket['status']
             session['ticket_duedate'] = ticket['due_date']
-
         return redirect(url_for('manage'))
 
 

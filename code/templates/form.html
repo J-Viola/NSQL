@@ -35,12 +35,4 @@
     <button type="submit" class="btn btn-primary">Submit ticket</button>
 </form>
 
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-            <p class="alert alert-success mt-5" role="alert">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
-
 {% endblock %}

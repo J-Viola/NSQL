@@ -26,17 +26,7 @@
         </fieldset>
         <a href="{{ url_for('delete_ticket', id=session['ticket_id']) }}" class="btn btn-danger">Delete Ticket</a>
         <a href="{{ url_for('edit_ticket', id=session['ticket_id']) }}" class="btn btn-info">Edit Ticket</a>
-
     {% endif %}
 </form>
-
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-            <p class="alert alert-success mt-5" role="alert">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
-
 
 {% endblock %}
