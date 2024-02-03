@@ -9,7 +9,6 @@ users_collection = db['helpdeskuser']
 task_collection.drop()
 users_collection.drop()
 
-
 tasks_init = [
     {'id': '6', 'task': 'Nefunguje monitor', 'requestor': 'Skladnik2', 'assignee': 'IT1', 'status': 'New', 'due_date': '2024-02-14'}
     , {'id': '5', 'task': 'Potrebuji pridat report', 'requestor': 'Manager1', 'assignee': 'ERP1', 'status': 'In Progress', 'due_date': '2024-02-17'}
@@ -28,7 +27,7 @@ users_init = [
 task_collection.insert_many(tasks_init)
 users_collection.insert_many(users_init)
 
-app = Flask('code.py')
+app = Flask('__name__')
 app.secret_key = "super secret key"
 
 
@@ -46,7 +45,6 @@ def login():
         password = request.form.get('password')
 
         user = users_collection.find_one({'username': username})
-
         if user and user['password'] == password:
             session['user_is_authenticated'] = True
             session['user'] = username
@@ -62,8 +60,6 @@ def logout():
     flash('Successfuly logged out.', 'Logout successful!')
     return redirect('index')
 
-
-# delete + edit
 
 @app.route('/form', methods=['GET', 'POST'])
 def form():

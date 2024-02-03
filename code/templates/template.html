@@ -13,32 +13,32 @@
             <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
                 <ul class="navbar-nav me-auto">
                     {% if session.user_is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="index">Tasks</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="form">Submit Task</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="manage">Manage</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-link">
-                            <a class="nav-link" href="index">Tasks</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="form">Submit Task</a>
-                        </li>
+                       <li class="nav-link">
+                           <a class="nav-link" href="{{ url_for('index') }}">Tasks</a>
+                       </li>
+                       <li class="nav-link">
+                           <a class="nav-link" href="{{ url_for('form') }}">Submit Task</a>
+                       </li>
+                       <li class="nav-link">
+                           <a class="nav-link" href="{{ url_for('manage') }}">Manage</a>
+                       </li>
+                   {% else %}
+                       <li class="nav-link">
+                           <a class="nav-link" href="{{ url_for('index') }}">Tasks</a>
+                       </li>
+                       <li class="nav-link">
+                           <a class="nav-link" href="{{ url_for('form') }}">Submit Task</a>
+                       </li>
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     {% if not session.user_is_authenticated %}
                         <li class="nav-item">
                             <form class="d-flex" action="/login" method="POST">
-                                <label for="username" class="text-white me-2">Username:</label>
+                                <label for="username" class="text-white me-2 pt-2">Username:</label>
                                 <input type="text" id="username" name="username" class="form-control me-2" placeholder="Enter username">
 
-                                <label for="password" class="text-white me-2">Password:</label>
+                                <label for="password" class="text-white me-2 pt-2">Password:</label>
                                 <input type="password" id="password" name="password" class="form-control me-2" placeholder="Enter password">
 
                                 <button class="btn btn-outline-light" type="submit">Login</button>
@@ -68,7 +68,7 @@
         {% block content %}{% endblock %}
     </main>
     <footer class="text-center text-lg-start bg-light text-muted">
-                <p class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom">&copy; Viola Jan</p>
+                <p class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom"></p>
     </footer>
 </body>
 </html>
