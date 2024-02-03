@@ -11,12 +11,12 @@ users_collection.drop()
 
 
 tasks_init = [
-    {'id': '6', 'task': 'Nefunguje monitor', 'requestor': 'Skladnik2', 'assignee': 'IT1', 'status': 'New', 'due_date': '14.02.2024'}
-    , {'id': '5', 'task': 'Potrebuji pridat report', 'requestor': 'Manager1', 'assignee': 'ERP1', 'status': 'In Progress', 'due_date': '17.02.2024'}
-    , {'id': '4', 'task': 'pomoc excel', 'requestor': 'Acct', 'assignee': 'IT1', 'status': 'Completed', 'due_date': '05.02.2024'}
-    , {'id': '3', 'task': 'n€funguj€ mi €', 'requestor': 'QE2', 'assignee': 'IT2', 'status': 'Completed', 'due_date': '04.02.2024'}
-    , {'id': '2', 'task': 'neumim zapnout pc', 'requestor': 'Skladnik1', 'assignee': 'IT2', 'status': 'Completed', 'due_date': '01.02.2024'}
-    , {'id': '1', 'task': 'ahoj', 'requestor': 'QE1', 'assignee': 'ERP1', 'status': 'Completed', 'due_date': '01.02.2024'}
+    {'id': '6', 'task': 'Nefunguje monitor', 'requestor': 'Skladnik2', 'assignee': 'IT1', 'status': 'New', 'due_date': '2024-02-14'}
+    , {'id': '5', 'task': 'Potrebuji pridat report', 'requestor': 'Manager1', 'assignee': 'ERP1', 'status': 'In Progress', 'due_date': '2024-02-17'}
+    , {'id': '4', 'task': 'pomoc excel', 'requestor': 'Acct', 'assignee': 'IT1', 'status': 'Completed', 'due_date': '2024-02-05'}
+    , {'id': '3', 'task': 'n€funguj€ mi €', 'requestor': 'QE2', 'assignee': 'IT2', 'status': 'Completed', 'due_date': '2024-02-04'}
+    , {'id': '2', 'task': 'neumim zapnout pc', 'requestor': 'Skladnik1', 'assignee': 'IT2', 'status': 'Completed', 'due_date': '2024-02-01'}
+    , {'id': '1', 'task': 'ahoj', 'requestor': 'QE1', 'assignee': 'ERP1', 'status': 'Completed', 'due_date': '2024-02-01'}
 ]
 
 users_init = [
@@ -58,7 +58,6 @@ def login():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    # Clear the session for logging out
     session.clear()
     flash('Successfuly logged out.', 'Logout successful!')
     return redirect('index')
@@ -102,6 +101,68 @@ def form():
         else:
             flash('Failed to submit', 'error')
     return render_template('form.html', assignees=assignee_list, statuses=status_list)
+
+
+@app.route('/edit_ticket', methods=['GET', 'POST'])
+def edit_ticket():
+    if request.method == 'GET':
+        ticket_id = request.args.get('id')
+        ticket = task_collection.find_one({'id': ticket_id})
+        return render_template('tasks.html', ticket=ticket)
+
+    elif request.method == 'POST':
+        ticket_id = request.form.get('id')
+        existing_ticket = task_collection.find_one({'id': ticket_id})
+
+        if existing_ticket:
+            updated_fields = {
+                'task': request.form.get('task'),
+                'requestor': request.form.get('requestor'),
+                'assignee': request.form.get('assignee'),
+                'status': request.form.get('status'),
+                'due_date': request.form.get('duedate')
+            }
+            task_collection.update_one({'id': ticket_id}, {'$set': updated_fields})
+            flash('Ticket updated successfully.', 'success')
+            return redirect(url_for('manage'))
+
+        else:
+            flash('Ticket not found!', 'error')
+            return redirect(url_for('manage'))
+
+
+@app.route('/delete_ticket', methods=['GET'])
+def delete_ticket():
+    ticket_id = request.args.get('id')
+    deletion = task_collection.delete_one({'id': ticket_id})
+    if deletion.deleted_count > 0:
+        flash('Ticket deleted succesfully.', 'success')
+    else:
+        flash('Ticket was not deleted.', 'error')
+    return redirect(url_for('manage'))
+
+
+@app.route('/manage', methods=['GET', 'POST'])
+def manage():
+    if request.method == 'GET':
+        id_list = task_collection.distinct('id')
+        return render_template('manage.html', ids=id_list)
+
+    elif request.method == 'POST':
+        ticket_id = request.form.get('id')
+        ticket = task_collection.find_one({'id': ticket_id})
+
+        if ticket:
+            session['ticket_listed'] = True
+            session['ticket'] = str(ticket)
+            session['ticket_id'] = ticket['id']
+            session['ticket_task'] = ticket['task']
+            session['ticket_requestor'] = ticket['requestor']
+            session['ticket_assignee'] = ticket['assignee']
+            session['ticket_status'] = ticket['status']
+            session['ticket_duedate'] = ticket['due_date']
+
+        return redirect(url_for('manage'))
 
 
 if __name__ == '__main__':

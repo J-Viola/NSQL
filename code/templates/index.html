@@ -3,11 +3,17 @@
 {% block content %}
 <h2>Tasks</h2>
 <ul class="list-group">
-<p>Task - Requestor - Assignee - Status - Due Date</p>
-{% for task in tasklist %}
-<li class="list-group-item">
-    {{ task["task"] }} - {{ task["requestor"] }} - {{ task["assignee"] }} - {{ task["status"] }} - {{ task["due_date"] }}
-</li>
-{% endfor %}
+    <p>{% if session.user_is_authenticated %}
+            ID -
+        {% endif %}
+        Task - Requestor - Assignee - Status - Due Date</p>
+    {% for task in tasklist %}
+    <li class="list-group-item">
+        {% if session.user_is_authenticated %}
+            {{ task["id"] }} -
+        {% endif %}
+         {{ task["task"] }} - {{ task["requestor"] }} - {{ task["assignee"] }} - {{ task["status"] }} - {{ task["due_date"] }}
+    </li>
+    {% endfor %}
 </ul>
 {% endblock %}
