@@ -4,23 +4,35 @@
 <form action="form" method="post">
     <fieldset>
         <div class="mb-3 mt-3">
-            <label for="name" class="form-label">Name:</label>
-            <input type="text" name="name" class="form-control" id="name" required>
+            <label for="task" class="form-label">Task:</label>
+            <input type="text" name="task" class="form-control" id="task" required>
         </div>
         <div class="mb-3 mt-3">
-            <label for="priority" class="form-label">Priority:</label>
-            <select name="text" class="form-control" id="priority" required>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+             <label for="requestor" class="form-label">Requestor:</label>
+             <input type="text" name="requestor" class="form-control" id="requestor" required>
+        </div>
+        <div class="mb-3 mt-3">
+             <label for="assignee" class="form-label">Assignee:</label>
+            <select name="assignee" class="form-control" id="assignee" required>
+                {% for assignee in assignees %}
+                    <option value="{{ assignee }}">{{ assignee }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="mb-3 mt-3">
-            <label for="description" class="form-label">Description:</label>
-            <textarea name="description" class="form-control" id="description" cols="30" rows="10" required></textarea>
+             <label for="status" class="form-label">Status:</label>
+            <select name="status" class="form-control" id="status" required>
+                {% for status in statuses %}
+                    <option value="{{ status }}">{{ status }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3 mt-3">
+            <label for="duedate" class="form-label">Due Date:</label>
+            <input type="date" name="duedate" class="form-control" id="duedate" required>
         </div>
     </fieldset>
-    <button type="submit" class="btn btn-primary">Send</button>
+    <button type="submit" class="btn btn-primary">Submit ticket</button>
 </form>
 
 {% with messages = get_flashed_messages() %}

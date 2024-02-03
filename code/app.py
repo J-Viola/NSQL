@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, url_for
 import pymongo
 
 mongo_client = pymongo.MongoClient("mongodb://admin:admin@mongodb:27017", connect=False)
@@ -11,12 +11,12 @@ users_collection.drop()
 
 
 tasks_init = [
-    {'task': 'Nefunguje monitor', 'requestor': 'Skladnik2', 'assignee': 'IT1', 'status': 'New', 'due_date': '14.02.2024'}
-    , {'task': 'Potrebuji pridat report', 'requestor': 'Manager1', 'assignee': 'ERP1', 'status': 'In Progress', 'due_date': '17.02.2024'}
-    , {'task': 'pomoc excel', 'requestor': 'Acct', 'assignee': 'IT1', 'status': 'Completed', 'due_date': '05.02.2024'}
-    , {'task': 'n€funguj€ mi €', 'requestor': 'QE6', 'assignee': 'IT2', 'status': 'Completed', 'due_date': '04.02.2024'}
-    , {'task': 'neumim zapnout pc', 'requestor': 'Skladnik1', 'assignee': 'IT2', 'status': 'Completed', 'due_date': '01.02.2024'}
-    , {'task': 'ahoj', 'requestor': 'QE1', 'assignee': 'ERP1', 'status': 'Completed', 'due_date': '01.02.2024'}
+    {'id': '6', 'task': 'Nefunguje monitor', 'requestor': 'Skladnik2', 'assignee': 'IT1', 'status': 'New', 'due_date': '14.02.2024'}
+    , {'id': '5', 'task': 'Potrebuji pridat report', 'requestor': 'Manager1', 'assignee': 'ERP1', 'status': 'In Progress', 'due_date': '17.02.2024'}
+    , {'id': '4', 'task': 'pomoc excel', 'requestor': 'Acct', 'assignee': 'IT1', 'status': 'Completed', 'due_date': '05.02.2024'}
+    , {'id': '3', 'task': 'n€funguj€ mi €', 'requestor': 'QE2', 'assignee': 'IT2', 'status': 'Completed', 'due_date': '04.02.2024'}
+    , {'id': '2', 'task': 'neumim zapnout pc', 'requestor': 'Skladnik1', 'assignee': 'IT2', 'status': 'Completed', 'due_date': '01.02.2024'}
+    , {'id': '1', 'task': 'ahoj', 'requestor': 'QE1', 'assignee': 'ERP1', 'status': 'Completed', 'due_date': '01.02.2024'}
 ]
 
 users_init = [
@@ -35,7 +35,7 @@ app.secret_key = "super secret key"
 @app.route('/')
 @app.route('/index')
 def index():
-    tasks = task_collection.find()
+    tasks = task_collection.find(sort=[('id', pymongo.DESCENDING)])
     return render_template('index.html', tasklist=tasks)
 
 
@@ -63,7 +63,45 @@ def logout():
     flash('Successfuly logged out.', 'Logout successful!')
     return redirect('index')
 
+
 # delete + edit
+
+@app.route('/form', methods=['GET', 'POST'])
+def form():
+
+    assignee_list = users_collection.distinct('username')
+    status_list = [
+        'New'
+        , 'In Process'
+        , 'Completed'
+        , 'Closed'
+        , 'Awaiting Additional Info'
+        , 'Long Term Project'
+    ]
+
+    if request.method == 'POST':
+        task = request.form.get('task')
+        requestor = request.form.get('requestor')
+        assignee = request.form.get('assignee')
+        status = request.form.get('status')
+        duedate = request.form.get('duedate')
+
+        highestid = task_collection.find_one(sort=[('id', pymongo.DESCENDING)])
+        newid = int(highestid['id']) + 1 if highestid else 1
+
+        result = task_collection.insert_one({
+            'id': str(newid)
+            , 'task': task
+            , 'requestor': requestor
+            , 'assignee': assignee
+            , 'status': status
+            , 'due_date': duedate
+        })
+        if result.acknowledged:
+            flash('Ticket submitted succesfully.', 'success')
+        else:
+            flash('Failed to submit', 'error')
+    return render_template('form.html', assignees=assignee_list, statuses=status_list)
 
 
 if __name__ == '__main__':
