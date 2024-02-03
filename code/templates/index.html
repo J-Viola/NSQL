@@ -3,9 +3,9 @@
 {% block content %}
 <h2>Tasks</h2>
 <ul class="list-group">
-{% for recipe in recipes %}
+{% for task in tasklist %}
 <li class="list-group-item">
-    {{ recipe["name"] }} ({{ recipe["author"] }}) - {{ recipe["description"] }}
+    {{ tasks["task"] }} - ({{ tasks["requestor"] }}) - {{ tasks["assignee"] }} - {{ tasks["status"] }} - {{ tasks["due_date"] }}
 </li>
 {% endfor %}
 </ul>
