@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, redirect, session, flash, url_for
+from flask import Flask, render_template, request, redirect, session, flash, url_for, make_response
 import pymongo
+from bson import json_util
+
 
 mongo_client = pymongo.MongoClient("mongodb://admin:admin@mongodb:27017", connect=False)
 db = mongo_client['helpdesk']
@@ -10,12 +12,18 @@ task_collection.drop()
 users_collection.drop()
 
 tasks_init = [
-    {'id': '6', 'task': 'Nefunguje monitor', 'requestor': 'Skladnik2', 'assignee': 'IT1', 'status': 'New', 'due_date': '2024-02-14'}
-    , {'id': '5', 'task': 'Potrebuji pridat report', 'requestor': 'Manager1', 'assignee': 'ERP1', 'status': 'In Progress', 'due_date': '2024-02-17'}
-    , {'id': '4', 'task': 'pomoc excel', 'requestor': 'Acct', 'assignee': 'IT1', 'status': 'Completed', 'due_date': '2024-02-05'}
-    , {'id': '3', 'task': 'n€funguj€ mi €', 'requestor': 'QE2', 'assignee': 'IT2', 'status': 'Completed', 'due_date': '2024-02-04'}
-    , {'id': '2', 'task': 'neumim zapnout pc', 'requestor': 'Skladnik1', 'assignee': 'IT2', 'status': 'Completed', 'due_date': '2024-02-01'}
-    , {'id': '1', 'task': 'ahoj', 'requestor': 'QE1', 'assignee': 'ERP1', 'status': 'Completed', 'due_date': '2024-02-01'}
+    {'id': '6', 'task': 'Nefunguje monitor', 'requestor': 'Skladnik2', 'assignee': 'IT1', 'status': 'New',
+     'due_date': '2024-02-14'}
+    , {'id': '5', 'task': 'Potrebuji pridat report', 'requestor': 'Manager1', 'assignee': 'ERP1',
+       'status': 'In Progress', 'due_date': '2024-02-17'}
+    , {'id': '4', 'task': 'pomoc excel', 'requestor': 'Acct', 'assignee': 'IT1', 'status': 'Completed',
+       'due_date': '2024-02-05'}
+    , {'id': '3', 'task': 'n€funguj€ mi €', 'requestor': 'QE2', 'assignee': 'IT2', 'status': 'Completed',
+       'due_date': '2024-02-04'}
+    , {'id': '2', 'task': 'neumim zapnout pc', 'requestor': 'Skladnik1', 'assignee': 'IT2', 'status': 'Completed',
+       'due_date': '2024-02-01'}
+    , {'id': '1', 'task': 'ahoj', 'requestor': 'QE1', 'assignee': 'ERP1', 'status': 'Completed',
+       'due_date': '2024-02-01'}
 ]
 
 users_init = [
@@ -120,9 +128,10 @@ def edit_ticket():
             return redirect(url_for('manage'))
 
 
-@app.route('/delete_ticket', methods=['GET'])
-def delete_ticket():
-    ticket_id = request.args.get('id')
+# HTML umožňuje pouze POST A GET request, příklad mazání pomocí GET (NENÍ DOBRÝ PŘÍSTUP)
+# Nechal jsem to tu pouze pro správnou funkci tlačítka Delete bez použití javascriptu (onclick)
+@app.route('/delete_ticket/<ticket_id>', methods=['GET'])
+def delete_ticket(ticket_id):
     deletion = task_collection.delete_one({'id': ticket_id})
     if deletion.deleted_count > 0:
         session['ticket_listed'] = False
@@ -130,6 +139,31 @@ def delete_ticket():
     else:
         flash('Ticket was not deleted.', 'error')
     return redirect(url_for('manage'))
+
+
+@app.route('/api/manage', methods=['DELETE', 'PUT'])
+def api_manage():
+    if request.method == 'DELETE':
+        ticket_id = request.args.get('tid')
+        if task_collection.find_one({'id': ticket_id}):
+            task_collection.delete_one({'id': ticket_id})
+            return make_response(json_util.dumps({'success': f'Task with id: {ticket_id} deleted.'}), 200)
+        else:
+            return make_response(json_util.dumps({'error': 'Task not found!'}), 404)
+
+    elif request.method == 'PUT':
+        ticket_id = request.args.get('tid')
+        updated_fields = {
+            'task': request.args.get('task'),
+            'requestor': request.args.get('requestor'),
+            'assignee': request.args.get('assignee'),
+            'status': request.args.get('status'),
+        }
+        if task_collection.find_one({'id': ticket_id}):
+            task_collection.update_one({'id': ticket_id}, {'$set': updated_fields})
+            return make_response(json_util.dumps({'success': f'Task with id: {ticket_id} updated.'}), 200)
+        else:
+            return make_response(json_util.dumps({'error': 'Task not found!'}), 404)
 
 
 @app.route('/manage', methods=['GET', 'POST'])
